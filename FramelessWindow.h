@@ -3,12 +3,6 @@
 
 #include <QMainWindow>
 
-QT_BEGIN_NAMESPACE
-namespace Ui {
-class FramelessWindow;
-}
-QT_END_NAMESPACE
-
 class FramelessWindow : public QMainWindow
 {
     Q_OBJECT
@@ -16,11 +10,17 @@ class FramelessWindow : public QMainWindow
 public:
     struct Thickness
     {
-        Thickness(int left = 5, int right = 5, int top = 5, int bottom = 5)
+        Thickness(int left, int right, int top, int bottom)
             : left(left)
             , right(right)
             , top(top)
             , bottom(bottom)
+        {}
+        Thickness(int thickness)
+            : left(thickness)
+            , right(thickness)
+            , top(thickness)
+            , bottom(thickness)
         {}
         int left, right, top, bottom;
     };
@@ -40,6 +40,8 @@ public:
      */
     Thickness resizeThickness();
 
+public slots:
+
     /**
      * @brief When the mouse is pressed, drag the window.
      * (Note: You need to make sure that when calling this function, the left mouse button is pressed)
@@ -50,7 +52,6 @@ protected:
     virtual bool nativeEvent(const QByteArray &eventType, void *message, qintptr *result) override;
 
 private:
-    Ui::FramelessWindow *ui;
     Thickness m_resizeThickness;
 };
 #endif // FRAMELESSWINDOW_H

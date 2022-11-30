@@ -2,22 +2,19 @@
 #include "ui_FramelessWindow.h"
 
 #ifdef Q_OS_WINDOWS
+
 #include <Windows.h>
 #include <Windowsx.h>
 #pragma comment(lib, "user32.lib")
+
 #endif
 
 FramelessWindow::FramelessWindow(QWidget *parent)
     : QMainWindow(parent)
-    , ui(new Ui::FramelessWindow)
-{
-    ui->setupUi(this);
-}
+    , m_resizeThickness(5)
+{}
 
-FramelessWindow::~FramelessWindow()
-{
-    delete ui;
-}
+FramelessWindow::~FramelessWindow() {}
 
 void FramelessWindow::setResizeThickness(const Thickness &thickness)
 {
@@ -32,6 +29,7 @@ FramelessWindow::Thickness FramelessWindow::resizeThickness()
 void FramelessWindow::dragMove()
 {
 #ifdef Q_OS_WINDOWS
+    ReleaseCapture();
     SendMessage(reinterpret_cast<HWND>(winId()), WM_NCLBUTTONDOWN, HTCAPTION, NULL);
 #endif
 }

@@ -15,8 +15,7 @@ SOURCES += \
 HEADERS += \
     FramelessWindow.h
 
-FORMS += \
-    FramelessWindow.ui
+FORMS +=
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
