@@ -40,6 +40,11 @@ public:
      */
     Thickness resizeThickness();
 
+    /**
+     * @brief Set the DWM style, on Windows 11, the border color does not follow the system
+     */
+    void applyDwmStyle(bool apply = true);
+
 public slots:
 
     /**
@@ -49,14 +54,14 @@ public slots:
     void dragMove();
 
 protected:
-
-#if (QT_VERSION < QT_VERSION_CHECK(6,0,0))
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
     virtual bool nativeEvent(const QByteArray &eventType, void *message, long *result) override;
-#elif (QT_VERSION >= QT_VERSION_CHECK(6,0,0))
+#elif (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
     virtual bool nativeEvent(const QByteArray &eventType, void *message, qintptr *result) override;
 #endif
 
 private:
     Thickness m_resizeThickness;
+    bool m_isDwmStyle;
 };
 #endif // FRAMELESSWINDOW_H

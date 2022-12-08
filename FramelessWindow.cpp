@@ -3,10 +3,13 @@
 #include <Windows.h>
 #include <Windowsx.h>
 #pragma comment(lib, "user32.lib")
+#include <dwmapi.h>
+#pragma comment(lib, "dwmapi.lib")
 
 FramelessWindow::FramelessWindow(QWidget *parent)
     : QMainWindow(parent)
     , m_resizeThickness(5)
+    , m_isDwmStyle(false)
 {}
 
 FramelessWindow::~FramelessWindow() {}
@@ -21,15 +24,22 @@ FramelessWindow::Thickness FramelessWindow::resizeThickness()
     return m_resizeThickness;
 }
 
+void FramelessWindow::applyDwmStyle(bool apply)
+{
+    static MARGINS margins{1};
+    DwmExtendFrameIntoClientArea((HWND) winId(), &margins);
+    m_isDwmStyle = apply;
+}
+
 void FramelessWindow::dragMove()
 {
     ReleaseCapture();
     SendMessage(reinterpret_cast<HWND>(winId()), WM_NCLBUTTONDOWN, HTCAPTION, NULL);
 }
 
-#if (QT_VERSION < QT_VERSION_CHECK(6,0,0))
+#if (QT_VERSION < QT_VERSION_CHECK(6, 0, 0))
 bool FramelessWindow::nativeEvent(const QByteArray &eventType, void *message, long *result)
-#elif (QT_VERSION >= QT_VERSION_CHECK(6,0,0))
+#elif (QT_VERSION >= QT_VERSION_CHECK(6, 0, 0))
 bool FramelessWindow::nativeEvent(const QByteArray &eventType, void *message, qintptr *result)
 #endif
 {
@@ -39,23 +49,27 @@ bool FramelessWindow::nativeEvent(const QByteArray &eventType, void *message, qi
         switch (msg->message) {
         case WM_NCCALCSIZE:
 
-            if ((bool) msg->wParam == true) {
-                LPNCCALCSIZE_PARAMS params = reinterpret_cast<LPNCCALCSIZE_PARAMS>(msg->lParam);
-
-                params->rgrc[0].left += 1;
-                params->rgrc[0].right -= 1;
-                params->rgrc[0].top += 1;
-                params->rgrc[0].bottom -= 1;
-
-                *result = WVR_VALIDRECTS;
-            } else {
-                RECT *rect = reinterpret_cast<RECT *>(msg->lParam);
-
-                rect->left += 1;
-                rect->right -= 1;
-                rect->top += 1;
-                rect->bottom -= 1;
+            if (m_isDwmStyle) {
                 *result = 0;
+            } else {
+                if ((bool) msg->wParam == true) {
+                    LPNCCALCSIZE_PARAMS params = reinterpret_cast<LPNCCALCSIZE_PARAMS>(msg->lParam);
+
+                    params->rgrc[0].left += 1;
+                    params->rgrc[0].right -= 1;
+                    params->rgrc[0].top += 1;
+                    params->rgrc[0].bottom -= 1;
+
+                    *result = WVR_VALIDRECTS;
+                } else {
+                    RECT *rect = reinterpret_cast<RECT *>(msg->lParam);
+
+                    rect->left += 1;
+                    rect->right -= 1;
+                    rect->top += 1;
+                    rect->bottom -= 1;
+                    *result = 0;
+                }
             }
             return true;
 
