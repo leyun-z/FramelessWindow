@@ -49,7 +49,12 @@ public slots:
     void dragMove();
 
 protected:
+
+#if (QT_VERSION < QT_VERSION_CHECK(6,0,0))
+    virtual bool nativeEvent(const QByteArray &eventType, void *message, long *result) override;
+#elif (QT_VERSION >= QT_VERSION_CHECK(6,0,0))
     virtual bool nativeEvent(const QByteArray &eventType, void *message, qintptr *result) override;
+#endif
 
 private:
     Thickness m_resizeThickness;

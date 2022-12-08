@@ -1,13 +1,8 @@
 #include "FramelessWindow.h"
-#include "ui_FramelessWindow.h"
-
-#ifdef Q_OS_WINDOWS
 
 #include <Windows.h>
 #include <Windowsx.h>
 #pragma comment(lib, "user32.lib")
-
-#endif
 
 FramelessWindow::FramelessWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -28,13 +23,15 @@ FramelessWindow::Thickness FramelessWindow::resizeThickness()
 
 void FramelessWindow::dragMove()
 {
-#ifdef Q_OS_WINDOWS
     ReleaseCapture();
     SendMessage(reinterpret_cast<HWND>(winId()), WM_NCLBUTTONDOWN, HTCAPTION, NULL);
-#endif
 }
 
+#if (QT_VERSION < QT_VERSION_CHECK(6,0,0))
+bool FramelessWindow::nativeEvent(const QByteArray &eventType, void *message, long *result)
+#elif (QT_VERSION >= QT_VERSION_CHECK(6,0,0))
 bool FramelessWindow::nativeEvent(const QByteArray &eventType, void *message, qintptr *result)
+#endif
 {
     if (eventType == "windows_generic_MSG") {
         MSG *msg;
